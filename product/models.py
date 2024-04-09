@@ -36,7 +36,16 @@ class Product(models.Model):
 
 
 class File(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    FILE_AUDIO = 1
+    FILE_VIDEO = 2
+    FILE_PDF = 3
+    FILE_TYPE = (
+        (FILE_AUDIO, 'audio'),
+        (FILE_VIDEO, 'video'),
+        (FILE_PDF, 'pdf'),
+    )
+    file_type = models.PositiveSmallIntegerField('file type', choices=FILE_TYPE, default=FILE_VIDEO)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='files')
     title = models.CharField(max_length=50)
     file = models.FileField(upload_to='files/%Y/%m/%d')
     is_enabled = models.BooleanField(default=False)
@@ -45,3 +54,6 @@ class File(models.Model):
 
     class Meta:
         db_table = 'files'
+
+    def __str__(self):
+        return self.title
