@@ -1,6 +1,5 @@
 import random
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager, send_mail
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
 from django.utils import timezone
 from django.core import validators
@@ -19,7 +18,7 @@ class UserManager(BaseUserManager):
                           username=username,
                           email=email,
                           is_staff=is_staff,
-                          is_active=is_staff, is_superuser=is_superuser)
+                          is_active=is_staff, is_superuser=is_superuser, date_joined=now, **extra_fields)
         if not extra_fields.get('no_password'):
             user.set_password(password)
 
@@ -43,6 +42,36 @@ class UserManager(BaseUserManager):
     def get_by_phone_number(self, phone_number):
         return self.get(**{'phone_number': phone_number})
 
+# class UserManager(BaseUserManager):
+#     def create_user(self, phone, password=None):
+#         """
+#         Creates and saves a User with the given email, date of
+#         birth and password.
+#         """
+#         if not phone:
+#             raise ValueError("Users must have an phone number")
+#
+#         user = self.model(
+#             phone=phone
+#         )
+#
+#         user.set_password(password)
+#         user.save(using=self._db)
+#         return user
+
+    # def create_superuser(self, phone, password=None):
+    #     """
+    #     Creates and saves a superuser with the given email, date of
+    #     birth and password.
+    #     """
+    #     user = self.create_user(
+    #         phone,
+    #         password=password,
+    #     )
+    #     user.is_admin = True
+    #     user.save(using=self._db)
+    #     return user
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=32, unique=True, validators=[
@@ -51,7 +80,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
-    email = models.EmailField(unique=True, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
     phone_number = models.CharField(max_length=11, unique=True, null=True, blank=True,
                                     # validators=[
                                     #     validators.RegexVlidator(r'^989[0-3,9]\d{8}$', 'Enter a valid')
@@ -62,7 +91,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now, blank=True)
     last_seen = models.DateTimeField(null=True)
 
-    object = UserManager()
+    objects = UserManager()
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'phone_number']
 
