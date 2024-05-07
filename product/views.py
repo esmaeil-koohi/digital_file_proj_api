@@ -10,18 +10,6 @@ from product.serializers import ProductSerializer, FileSerializer, CategorySeria
 from rest_framework import generics, filters
 
 
-# class FileListView2(generics.ListAPIView):
-#     queryset = File.objects.all()
-#     serializer_class = FileSerializer
-#
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         id = self.request.query_params.get('id')
-#         if id:
-#             queryset = queryset.filter(product_id=id)
-#         return queryset
-
-
 class FileListView(APIView):
 
     def get(self, request: Request, product_id):
